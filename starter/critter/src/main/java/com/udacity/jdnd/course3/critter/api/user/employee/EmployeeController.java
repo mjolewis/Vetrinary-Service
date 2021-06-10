@@ -6,6 +6,7 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.DayOfWeek;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
@@ -30,31 +31,45 @@ public class EmployeeController {
 
         employee = employeeService.save(employee);
 
-        return convertToEmployeeDto(employee);
+        return convertEmployeeToEmployeeDto(employee);
     }
 
     @PostMapping("/{employeeId}")
     public EmployeeDTO getEmployee(@PathVariable long employeeId) {
         Employee employee = employeeService.findById(employeeId);
 
-        return convertToEmployeeDto(employee);
+        return convertEmployeeToEmployeeDto(employee);
     }
 
     @PutMapping("/{employeeId}")
-    public void setAvailability(@RequestBody Set<DayOfWeek> daysAvailable, @PathVariable long employeeId) {
-        throw new UnsupportedOperationException();
+    public void setAvailability(@RequestBody Set<DayOfWeek> daysAvailable, @PathVariable Long employeeId) {
+        employeeService.setAvailability(daysAvailable, employeeId);
     }
 
     @GetMapping("/availability")
     public List<EmployeeDTO> findEmployeesForService(@RequestBody EmployeeRequestDTO employeeDTO) {
-        throw new UnsupportedOperationException();
+        List<Employee> availableEmployees = employeeService.findEmployeesForService(employeeDTO.getDate());
+
+        return convertEmployeesToEmployeesDto(availableEmployees);
     }
 
-    private EmployeeDTO convertToEmployeeDto(Employee employee) {
+    private EmployeeDTO convertEmployeeToEmployeeDto(Employee employee) {
         EmployeeDTO employeeDto = new EmployeeDTO();
 
         BeanUtils.copyProperties(employee, employeeDto);
 
         return employeeDto;
+    }
+
+    private List<EmployeeDTO> convertEmployeesToEmployeesDto(List<Employee> employees) {
+        List<EmployeeDTO> employeesDto = new ArrayList<>();
+
+        for (Employee employee : employees) {
+            EmployeeDTO employeeDto = new EmployeeDTO();
+            BeanUtils.copyProperties(employee, employeeDto);
+            employeesDto.add(employeeDto);
+        }
+
+        return employeesDto;
     }
 }

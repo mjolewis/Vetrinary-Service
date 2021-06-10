@@ -42,7 +42,13 @@ public class CustomerService {
         return customerRepository.findAll();
     }
 
-    public Customer findByPetId(long id) {
-        return customerRepository.findCustomerByPetId(id);
+    public Customer findById(Long id) {
+        return customerRepository.findById(id).orElseThrow(CustomerNotFoundException::new);
+    }
+
+    public Customer findByPetId(Long id) {
+        //return customerRepository.findCustomerByPetsContains(id);
+
+        return customerRepository.findOwnerByPet(id);
     }
 }

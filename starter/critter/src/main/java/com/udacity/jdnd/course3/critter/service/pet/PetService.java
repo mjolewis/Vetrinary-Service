@@ -2,20 +2,26 @@ package com.udacity.jdnd.course3.critter.service.pet;
 
 import com.udacity.jdnd.course3.critter.domain.pet.Pet;
 import com.udacity.jdnd.course3.critter.domain.pet.PetRepository;
+import com.udacity.jdnd.course3.critter.domain.user.customer.Customer;
+import com.udacity.jdnd.course3.critter.domain.user.customer.CustomerRepository;
 import com.udacity.jdnd.course3.critter.service.pet.exception.PetNotFoundException;
+import com.udacity.jdnd.course3.critter.service.user.customer.exception.CustomerNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.concurrent.atomic.AtomicReference;
 
 @Service
 @Transactional
 public class PetService {
 
     private final PetRepository petRepository;
+    private final CustomerRepository customerRepository;
 
-    public PetService(PetRepository petRepository) {
+    public PetService(PetRepository petRepository, CustomerRepository customerRepository) {
         this.petRepository = petRepository;
+        this.customerRepository = customerRepository;
     }
 
     /**
@@ -36,7 +42,12 @@ public class PetService {
                     }).orElseThrow(PetNotFoundException::new);
         }
 
-        return petRepository.save(pet);
+        // Ensure entity state remains consistent when child gets updated.
+        Pet savedPet = petRepository.save(pet);
+        Customer customer = pet.getOwner();
+        customer.addPet(savedPet);
+        customerRepository.save(customer);
+        return savedPet;
     }
 
     /**
@@ -45,7 +56,7 @@ public class PetService {
      * @param id the ID number of the pet to gather information on
      * @return the requested pet's information
      */
-    public Pet findById(long id) {
+    public Pet findById(Long id) {
         return petRepository.
                 findById(id)
                 .orElseThrow(PetNotFoundException::new);
@@ -55,7 +66,9 @@ public class PetService {
         return petRepository.findAll();
     }
 
-    public List<Pet> findByOwnerId(long id) {
-        return petRepository.findPetsByOwner_Id(id);
+    public List<Pet> findByOwnerId(Long id) {
+        Customer customer = customerRepository.findById(id).orElseThrow(CustomerNotFoundException::new);
+
+        return customer.getPets();
     }
 }

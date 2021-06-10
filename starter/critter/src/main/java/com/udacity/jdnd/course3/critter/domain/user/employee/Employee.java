@@ -25,7 +25,8 @@ public class Employee {
     private Set<EmployeeSkill> skills = new HashSet<>();
 
     @ElementCollection(targetClass = DayOfWeek.class, fetch = FetchType.LAZY)
-    private Set<DayOfWeek> daysAvailable = new HashSet<>();
+    @Enumerated(EnumType.STRING)
+    private Set<DayOfWeek> daysAvailable;
 
     @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     @JoinColumn(name = "schedule_id")

@@ -1,11 +1,10 @@
 package com.udacity.jdnd.course3.critter.domain.schedule;
 
 import com.sun.istack.NotNull;
-import com.udacity.jdnd.course3.critter.domain.pet.Pet;
-import com.udacity.jdnd.course3.critter.domain.user.employee.Employee;
 
 import javax.persistence.*;
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -14,11 +13,14 @@ public class Schedule {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
 
-    @OneToMany(fetch = FetchType.LAZY, mappedBy = "schedule", cascade = CascadeType.ALL)
-    private List<Employee> employees;
+    @ElementCollection(targetClass = Long.class, fetch = FetchType.LAZY)
+    private List<Long> employeeIds = new ArrayList<>();
 
-    @OneToMany(fetch = FetchType.LAZY, mappedBy = "schedule", cascade = CascadeType.ALL)
-    private List<Pet> pets;
+    @ElementCollection(targetClass = Long.class, fetch = FetchType.LAZY)
+    private List<Long> customerIds = new ArrayList<>();
+
+    @ElementCollection(targetClass = Long.class, fetch = FetchType.LAZY)
+    private List<Long> petIds = new ArrayList<>();
 
     @NotNull
     private LocalDate date;
@@ -26,16 +28,18 @@ public class Schedule {
     public Schedule() {
     }
 
-    public Schedule(List<Employee> employees, List<Pet> pets, LocalDate date) {
-        this.employees = employees;
-        this.pets = pets;
+    public Schedule(List<Long> employeeIds, List<Long> customerIds, List<Long> petIds, LocalDate date) {
+        this.employeeIds = employeeIds;
+        this.customerIds = customerIds;
+        this.petIds = petIds;
         this.date = date;
     }
 
-    public Schedule(Long id, List<Employee> employees, List<Pet> pets, LocalDate date) {
+    public Schedule(Long id, List<Long> employeeIds, List<Long> customerIds, List<Long> petIds, LocalDate date) {
         this.id = id;
-        this.employees = employees;
-        this.pets = pets;
+        this.employeeIds = employeeIds;
+        this.customerIds = customerIds;
+        this.petIds = petIds;
         this.date = date;
     }
 
@@ -47,20 +51,28 @@ public class Schedule {
         this.id = id;
     }
 
-    public List<Employee> getEmployees() {
-        return employees;
+    public List<Long> getEmployeeIds() {
+        return employeeIds;
     }
 
-    public void setEmployees(List<Employee> employeeIds) {
-        this.employees = employeeIds;
+    public void setEmployeeIds(List<Long> employeeIds) {
+        this.employeeIds = employeeIds;
     }
 
-    public List<Pet> getPets() {
-        return pets;
+    public List<Long> getCustomerIds() {
+        return customerIds;
     }
 
-    public void setPets(List<Pet> petIds) {
-        this.pets = petIds;
+    public void setCustomerIds(List<Long> customerIds) {
+        this.customerIds = customerIds;
+    }
+
+    public List<Long> getPetIds() {
+        return petIds;
+    }
+
+    public void setPetIds(List<Long> petIds) {
+        this.petIds = petIds;
     }
 
     public LocalDate getDate() {

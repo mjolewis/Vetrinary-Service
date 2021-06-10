@@ -7,6 +7,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.DayOfWeek;
+import java.time.LocalDate;
+import java.util.List;
 import java.util.Set;
 
 @Service
@@ -43,7 +45,13 @@ public class EmployeeService {
         return employeeRepository.findById(id).orElseThrow(EmployeeNotFoundException::new);
     }
 
-//    public void setAvailability(Set<DayOfWeek> daysAvailable, long id) {
-//        employeeRepository.
-//    }
+    public void setAvailability(Set<DayOfWeek> daysAvailable, Long id) {
+        employeeRepository.findById(id)
+                .ifPresent(employee ->
+                        employee.setDaysAvailable(daysAvailable));
+    }
+
+    public List<Employee> findEmployeesForService(LocalDate date) {
+        return employeeRepository.findEmployeeByDaysAvailableContaining(date);
+    }
 }

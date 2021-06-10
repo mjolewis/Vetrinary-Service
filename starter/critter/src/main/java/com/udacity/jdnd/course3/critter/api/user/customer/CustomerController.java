@@ -29,38 +29,43 @@ public class CustomerController {
 
         customer = customerService.save(customer);
 
-        return convertToCustomerDto(customer);
+        return convertCustomerToCustomerDto(customer);
     }
 
     @GetMapping()
     public List<CustomerDTO> getAllCustomers(){
         List<Customer> customers = customerService.list();
 
-        return converToCustomerDtos(customers);
+        return convertCustomersToCustomersDto(customers);
     }
 
     @GetMapping("/pet/{petId}")
-    public CustomerDTO getOwnerByPet(@PathVariable long petId){
+    public CustomerDTO getOwnerByPet(@PathVariable Long petId){
         Customer customer = customerService.findByPetId(petId);
 
-        return convertToCustomerDto(customer);
+        return convertCustomerToCustomerDto(customer);
     }
 
-    private CustomerDTO convertToCustomerDto(Customer customer) {
-        CustomerDTO customerDTO = new CustomerDTO();
+    private CustomerDTO convertCustomerToCustomerDto(Customer customer) {
+        CustomerDTO customerDto = new CustomerDTO();
+        List<Long> petIds = new ArrayList<>();
 
-        BeanUtils.copyProperties(customer, customerDTO);
+        customer.getPets().forEach(pet -> petIds.add(pet.getId()));
 
-        return customerDTO;
+        customerDto.setPetIds(petIds);
+
+        BeanUtils.copyProperties(customer, customerDto);
+
+        return customerDto;
     }
 
-    private List<CustomerDTO> converToCustomerDtos(List<Customer> customers) {
-        List<CustomerDTO> customerDtos = new ArrayList<>();
+    private List<CustomerDTO> convertCustomersToCustomersDto(List<Customer> customers) {
+        List<CustomerDTO> customersDto = new ArrayList<>();
 
         for (Customer customer : customers) {
-            BeanUtils.copyProperties(customer, customerDtos);
+            customersDto.add(convertCustomerToCustomerDto(customer));
         }
 
-        return customerDtos;
+        return customersDto;
     }
 }

@@ -6,6 +6,7 @@ import org.hibernate.annotations.Check;
 import org.hibernate.annotations.Nationalized;
 
 import javax.persistence.*;
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -20,11 +21,11 @@ public class Customer {
     private String name;
 
     @NotNull
-    @Column(length = 10)
+    @Column(length = 11)
     private String phoneNumber;
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "owner", cascade = CascadeType.ALL)
-    private List<Pet> pets;
+    private List<Pet> pets = new ArrayList<>();
 
     private String notes;
 
@@ -76,6 +77,14 @@ public class Customer {
 
     public void setPets(List<Pet> pets) {
         this.pets = pets;
+    }
+
+    public void addPet(Pet pet) {
+        if (pets == null) {
+            pets = new ArrayList<>();
+        }
+
+        pets.add(pet);
     }
 
     public String getNotes() {

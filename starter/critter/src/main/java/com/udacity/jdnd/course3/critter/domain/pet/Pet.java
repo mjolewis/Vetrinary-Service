@@ -17,8 +17,8 @@ public class Pet {
     private Long id;
 
     @NotNull
-    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-    @JoinColumn(name = "customer_id")
+    @ManyToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+    @JoinColumn(name = "owner_id")
     private Customer owner;
 
     @NotNull
@@ -42,17 +42,19 @@ public class Pet {
     public Pet() {
     }
 
-    public Pet(Long id, Customer owner, PetType type, String name, LocalDate birthDate, String notes) {
-        this.id = id;
+    public Pet(Customer owner, Schedule schedule, PetType type, String name, LocalDate birthDate, String notes) {
         this.owner = owner;
+        this.schedule = schedule;
         this.type = type;
         this.name = name;
         this.birthDate = birthDate;
         this.notes = notes;
     }
 
-    public Pet(Customer owner, PetType type, String name, LocalDate birthDate, String notes) {
+    public Pet(Long id, Customer owner, Schedule schedule, PetType type, String name, LocalDate birthDate, String notes) {
+        this.id = id;
         this.owner = owner;
+        this.schedule = schedule;
         this.type = type;
         this.name = name;
         this.birthDate = birthDate;
@@ -73,6 +75,14 @@ public class Pet {
 
     public void setOwner(Customer owner) {
         this.owner = owner;
+    }
+
+    public Schedule getSchedule() {
+        return schedule;
+    }
+
+    public void setSchedule(Schedule schedule) {
+        this.schedule = schedule;
     }
 
     public PetType getType() {
