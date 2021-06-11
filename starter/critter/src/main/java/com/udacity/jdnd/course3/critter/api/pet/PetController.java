@@ -34,9 +34,9 @@ public class PetController {
         Customer owner = customerService.findById(petDTO.getOwnerId());
         pet.setOwner(owner);
 
-        pet = petService.save(pet);
+        Pet savedPet = petService.save(pet);
 
-        return convertPetToPetDto(pet);
+        return convertPetToPetDto(savedPet);
     }
 
     @GetMapping("/{petId}")

@@ -47,6 +47,18 @@ public class Customer {
         this.notes = notes;
     }
 
+    /**
+     * Create a list of pets if one doesn't exist. Then add a pet to the customer because this customer owns the pet.
+     * @param pet A pet object that gets added to the customer.
+     */
+    public void addPet(Pet pet) {
+        if (pets == null) {
+            pets = new ArrayList<>();
+        }
+
+        pets.add(pet);
+    }
+
     public Long getId() {
         return id;
     }
@@ -77,14 +89,6 @@ public class Customer {
 
     public void setPets(List<Pet> pets) {
         this.pets = pets;
-    }
-
-    public void addPet(Pet pet) {
-        if (pets == null) {
-            pets = new ArrayList<>();
-        }
-
-        pets.add(pet);
     }
 
     public String getNotes() {

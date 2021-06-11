@@ -3,15 +3,12 @@ package com.udacity.jdnd.course3.critter.domain.user.employee;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
-import java.time.LocalDate;
+import java.time.DayOfWeek;
 import java.util.List;
+import java.util.Set;
 
 @Repository
 public interface EmployeeRepository extends JpaRepository<Employee, Long> {
 
-//    @Modifying
-//    @Query("UPDATE Employee SET daysAvailable = :daysAvailable WHERE id = :id")
-//    void saveEmployeeAvailability(Set<DayOfWeek> daysAvailable, Long id);
-
-    List<Employee> findEmployeeByDaysAvailableContaining(LocalDate date);
+    List<Employee> findEmployeesByDaysAvailableAndSkillsIn(DayOfWeek daysAvailable,Set<EmployeeSkill> skills);
 }

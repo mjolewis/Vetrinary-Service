@@ -1,7 +1,9 @@
 package com.udacity.jdnd.course3.critter.service.user.customer;
 
+import com.udacity.jdnd.course3.critter.domain.pet.Pet;
 import com.udacity.jdnd.course3.critter.domain.user.customer.Customer;
 import com.udacity.jdnd.course3.critter.domain.user.customer.CustomerRepository;
+import com.udacity.jdnd.course3.critter.service.pet.PetService;
 import com.udacity.jdnd.course3.critter.service.user.customer.exception.CustomerNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -13,9 +15,11 @@ import java.util.List;
 public class CustomerService {
 
     private final CustomerRepository customerRepository;
+    private final PetService petService;
 
-    public CustomerService(CustomerRepository customerRepository) {
+    public CustomerService(CustomerRepository customerRepository, PetService petService) {
         this.customerRepository = customerRepository;
+        this.petService = petService;
     }
 
     /**
@@ -35,7 +39,13 @@ public class CustomerService {
                     }).orElseThrow(CustomerNotFoundException::new);
         }
 
-        return customerRepository.save(customer);
+        Customer savedCustomer = customerRepository.save(customer);
+
+        // Ensure entity state remains consistent when child gets updated.
+        List<Pet> pets = savedCustomer.getPets();
+        pets.forEach(pet -> pet.setOwner(customer));
+
+        return savedCustomer;
     }
 
     public List<Customer> list() {
@@ -47,8 +57,8 @@ public class CustomerService {
     }
 
     public Customer findByPetId(Long id) {
-        //return customerRepository.findCustomerByPetsContains(id);
+        Pet pet = petService.findById(id);
 
-        return customerRepository.findOwnerByPet(id);
+        return pet.getOwner();
     }
 }

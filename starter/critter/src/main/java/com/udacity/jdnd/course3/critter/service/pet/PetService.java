@@ -2,6 +2,7 @@ package com.udacity.jdnd.course3.critter.service.pet;
 
 import com.udacity.jdnd.course3.critter.domain.pet.Pet;
 import com.udacity.jdnd.course3.critter.domain.pet.PetRepository;
+import com.udacity.jdnd.course3.critter.domain.schedule.Schedule;
 import com.udacity.jdnd.course3.critter.domain.user.customer.Customer;
 import com.udacity.jdnd.course3.critter.domain.user.customer.CustomerRepository;
 import com.udacity.jdnd.course3.critter.service.pet.exception.PetNotFoundException;
@@ -44,8 +45,9 @@ public class PetService {
 
         // Ensure entity state remains consistent when child gets updated.
         Pet savedPet = petRepository.save(pet);
-        Customer customer = pet.getOwner();
+        Customer customer = savedPet.getOwner();
         customer.addPet(savedPet);
+
         customerRepository.save(customer);
         return savedPet;
     }
@@ -67,8 +69,8 @@ public class PetService {
     }
 
     public List<Pet> findByOwnerId(Long id) {
-        Customer customer = customerRepository.findById(id).orElseThrow(CustomerNotFoundException::new);
+        Customer owner = customerRepository.findById(id).orElseThrow(CustomerNotFoundException::new);
 
-        return customer.getPets();
+        return owner.getPets();
     }
 }

@@ -1,6 +1,7 @@
 package com.udacity.jdnd.course3.critter.api.user.employee;
 
 import com.udacity.jdnd.course3.critter.domain.user.employee.Employee;
+import com.udacity.jdnd.course3.critter.domain.user.employee.EmployeeSkill;
 import com.udacity.jdnd.course3.critter.service.user.employee.EmployeeService;
 import org.springframework.beans.BeanUtils;
 import org.springframework.web.bind.annotation.*;
@@ -48,7 +49,10 @@ public class EmployeeController {
 
     @GetMapping("/availability")
     public List<EmployeeDTO> findEmployeesForService(@RequestBody EmployeeRequestDTO employeeDTO) {
-        List<Employee> availableEmployees = employeeService.findEmployeesForService(employeeDTO.getDate());
+        DayOfWeek dayOfWeek = employeeDTO.getDate().getDayOfWeek();
+        Set<EmployeeSkill> skills = employeeDTO.getSkills();
+
+        List<Employee> availableEmployees = employeeService.findEmployeesForService(dayOfWeek, skills);
 
         return convertEmployeesToEmployeesDto(availableEmployees);
     }

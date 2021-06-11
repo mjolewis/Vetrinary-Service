@@ -1,11 +1,16 @@
 package com.udacity.jdnd.course3.critter.domain.schedule;
 
 import com.sun.istack.NotNull;
+import com.udacity.jdnd.course3.critter.domain.pet.Pet;
+import com.udacity.jdnd.course3.critter.domain.user.employee.Employee;
+import com.udacity.jdnd.course3.critter.domain.user.employee.EmployeeSkill;
 
 import javax.persistence.*;
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 @Entity
 public class Schedule {
@@ -13,14 +18,25 @@ public class Schedule {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
 
-    @ElementCollection(targetClass = Long.class, fetch = FetchType.LAZY)
-    private List<Long> employeeIds = new ArrayList<>();
+    @ManyToMany(cascade = CascadeType.ALL)
+    @JoinTable(
+            name = "schedule_employee",
+            joinColumns = {@JoinColumn(name = "schedule_id")},
+            inverseJoinColumns = {@JoinColumn(name = "employee_id")}
+    )
+    private List<Employee> employees = new ArrayList<>();
 
-    @ElementCollection(targetClass = Long.class, fetch = FetchType.LAZY)
-    private List<Long> customerIds = new ArrayList<>();
+    @ManyToMany(cascade = CascadeType.ALL)
+    @JoinTable(
+            name = "schedule_pet",
+            joinColumns = {@JoinColumn(name = "schedule_id")},
+            inverseJoinColumns = {@JoinColumn(name = "pet_id")}
+    )
+    private List<Pet> pets = new ArrayList<>();
 
-    @ElementCollection(targetClass = Long.class, fetch = FetchType.LAZY)
-    private List<Long> petIds = new ArrayList<>();
+    @ElementCollection(targetClass = EmployeeSkill.class, fetch = FetchType.LAZY)
+    @Enumerated(EnumType.STRING)
+    private Set<EmployeeSkill> activities = new HashSet<>();
 
     @NotNull
     private LocalDate date;
@@ -28,19 +44,45 @@ public class Schedule {
     public Schedule() {
     }
 
-    public Schedule(List<Long> employeeIds, List<Long> customerIds, List<Long> petIds, LocalDate date) {
-        this.employeeIds = employeeIds;
-        this.customerIds = customerIds;
-        this.petIds = petIds;
+    public Schedule(List<Employee> employees, List<Pet> pets, Set<EmployeeSkill> activities, LocalDate date) {
+        this.employees = employees;
+        this.pets = pets;
+        this.activities = activities;
         this.date = date;
     }
 
-    public Schedule(Long id, List<Long> employeeIds, List<Long> customerIds, List<Long> petIds, LocalDate date) {
+    public Schedule(Long id, List<Employee> employees, List<Pet> pets, Set<EmployeeSkill> activities, LocalDate date) {
         this.id = id;
-        this.employeeIds = employeeIds;
-        this.customerIds = customerIds;
-        this.petIds = petIds;
+        this.employees = employees;
+        this.pets = pets;
+        this.activities = activities;
         this.date = date;
+    }
+
+    /**
+     * Create a list of pets if one doesn't exist. Then add a pet to the schedule.
+     *
+     * @param pet A pet object that gets added to the schedule.
+     */
+    public void addPet(Pet pet) {
+        if (pets == null) {
+            pets = new ArrayList<>();
+        }
+
+        pets.add(pet);
+    }
+
+    /**
+     * Create a list of employees if one doesn't exist. Then add an employee to the schedule.
+     *
+     * @param employee A employee object that gets added to the schedule.
+     */
+    public void addEmployee(Employee employee) {
+        if (employees == null) {
+            employees = new ArrayList<>();
+        }
+
+        employees.add(employee);
     }
 
     public Long getId() {
@@ -51,28 +93,28 @@ public class Schedule {
         this.id = id;
     }
 
-    public List<Long> getEmployeeIds() {
-        return employeeIds;
+    public List<Employee> getEmployees() {
+        return employees;
     }
 
-    public void setEmployeeIds(List<Long> employeeIds) {
-        this.employeeIds = employeeIds;
+    public void setEmployees(List<Employee> employees) {
+        this.employees = employees;
     }
 
-    public List<Long> getCustomerIds() {
-        return customerIds;
+    public Set<EmployeeSkill> getActivities() {
+        return activities;
     }
 
-    public void setCustomerIds(List<Long> customerIds) {
-        this.customerIds = customerIds;
+    public void setActivities(Set<EmployeeSkill> employeeSkills) {
+        this.activities = employeeSkills;
     }
 
-    public List<Long> getPetIds() {
-        return petIds;
+    public List<Pet> getPets() {
+        return pets;
     }
 
-    public void setPetIds(List<Long> petIds) {
-        this.petIds = petIds;
+    public void setPets(List<Pet> pets) {
+        this.pets = pets;
     }
 
     public LocalDate getDate() {

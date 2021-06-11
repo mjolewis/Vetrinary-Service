@@ -8,6 +8,8 @@ import org.hibernate.annotations.Nationalized;
 
 import javax.persistence.*;
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Check(constraints = "length(trim(name)) > 0")
@@ -22,9 +24,13 @@ public class Pet {
     private Customer owner;
 
     @NotNull
-    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-    @JoinColumn(name = "schedule_id")
-    private Schedule schedule;
+    @ManyToMany(cascade = CascadeType.ALL)
+    @JoinTable(
+            name = "schedule_pet",
+            joinColumns = {@JoinColumn(name = "pet_id")},
+            inverseJoinColumns = {@JoinColumn(name = "schedule_id")}
+    )
+    private List<Schedule> schedules;
 
     @NotNull
     @Enumerated(EnumType.STRING)
@@ -42,23 +48,31 @@ public class Pet {
     public Pet() {
     }
 
-    public Pet(Customer owner, Schedule schedule, PetType type, String name, LocalDate birthDate, String notes) {
+    public Pet(Customer owner, List<Schedule> schedules, PetType type, String name, LocalDate birthDate, String notes) {
         this.owner = owner;
-        this.schedule = schedule;
+        this.schedules = schedules;
         this.type = type;
         this.name = name;
         this.birthDate = birthDate;
         this.notes = notes;
     }
 
-    public Pet(Long id, Customer owner, Schedule schedule, PetType type, String name, LocalDate birthDate, String notes) {
+    public Pet(Long id, Customer owner, List<Schedule> schedules, PetType type, String name, LocalDate birthDate, String notes) {
         this.id = id;
         this.owner = owner;
-        this.schedule = schedule;
+        this.schedules = schedules;
         this.type = type;
         this.name = name;
         this.birthDate = birthDate;
         this.notes = notes;
+    }
+
+    public void addSchedule(Schedule schedule) {
+        if (schedules == null) {
+            schedules = new ArrayList<>();
+        }
+
+        schedules.add(schedule);
     }
 
     public Long getId() {
@@ -77,12 +91,12 @@ public class Pet {
         this.owner = owner;
     }
 
-    public Schedule getSchedule() {
-        return schedule;
+    public List<Schedule> getSchedules() {
+        return schedules;
     }
 
-    public void setSchedule(Schedule schedule) {
-        this.schedule = schedule;
+    public void setSchedules(List<Schedule> schedule) {
+        this.schedules = schedule;
     }
 
     public PetType getType() {

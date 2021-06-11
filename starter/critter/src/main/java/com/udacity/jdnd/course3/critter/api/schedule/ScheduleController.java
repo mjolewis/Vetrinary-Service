@@ -1,7 +1,9 @@
 package com.udacity.jdnd.course3.critter.api.schedule;
 
 import com.udacity.jdnd.course3.critter.domain.schedule.Schedule;
+import com.udacity.jdnd.course3.critter.service.pet.PetService;
 import com.udacity.jdnd.course3.critter.service.schedule.ScheduleService;
+import com.udacity.jdnd.course3.critter.service.user.employee.EmployeeService;
 import org.springframework.beans.BeanUtils;
 import org.springframework.web.bind.annotation.*;
 
@@ -16,20 +18,39 @@ import java.util.List;
 public class ScheduleController {
 
     private final ScheduleService scheduleService;
+    private final EmployeeService employeeService;
+    private final PetService petService;
 
-    public ScheduleController(ScheduleService scheduleService) {
+    public ScheduleController(ScheduleService scheduleService, EmployeeService employeeService,
+                              PetService petService) {
         this.scheduleService = scheduleService;
+        this.employeeService = employeeService;
+        this.petService = petService;
     }
 
     @PostMapping
     public ScheduleDTO createSchedule(@RequestBody ScheduleDTO scheduleDTO) {
+        Schedule schedule = convertScheduleDtoToSchedule(scheduleDTO);
+
+        Schedule savedSchedule = scheduleService.save(schedule);
+
+        return convertScheduleToScheduleDto(savedSchedule);
+    }
+
+    private Schedule convertScheduleDtoToSchedule(ScheduleDTO scheduleDto) {
         Schedule schedule = new Schedule();
 
-        BeanUtils.copyProperties(scheduleDTO, schedule);
+        BeanUtils.copyProperties(scheduleDto, schedule, "employeeIds", "petIds");
 
-        schedule = scheduleService.save(schedule);
+        // Assign employee ids to the schedule. The DTO contains IDs to avoid sending larger objects over the wire.
+        List<Long> employeeIds = scheduleDto.getEmployeeIds();
+        employeeIds.forEach(employeeId -> schedule.addEmployee(employeeService.findById(employeeId)));
 
-        return convertScheduleToScheduleDto(schedule);
+        // Assign pet ids to the schedule. The DTO contains IDs to avoid sending larger objects over the wire.
+        List<Long> petIds = scheduleDto.getPetIds();
+        petIds.forEach(petId -> schedule.addPet(petService.findById(petId)));
+
+        return schedule;
     }
 
     @GetMapping
@@ -63,7 +84,16 @@ public class ScheduleController {
     private ScheduleDTO convertScheduleToScheduleDto(Schedule schedule) {
         ScheduleDTO scheduleDto = new ScheduleDTO();
 
-        BeanUtils.copyProperties(schedule, scheduleDto);
+        List<Long> employeeIds = new ArrayList<>();
+        schedule.getEmployees().forEach(employee -> employeeIds.add(employee.getId()));
+
+        List<Long> petIds = new ArrayList<>();
+        schedule.getPets().forEach(pet -> petIds.add(pet.getId()));
+
+        BeanUtils.copyProperties(schedule, scheduleDto, "employeeIds", "petIds");
+
+        scheduleDto.setEmployeeIds(employeeIds);
+        scheduleDto.setPetIds(petIds);
 
         return scheduleDto;
     }
@@ -72,9 +102,7 @@ public class ScheduleController {
         List<ScheduleDTO> schedulesDto = new ArrayList<>();
 
         for (Schedule schedule : schedules) {
-            ScheduleDTO scheduleDto = new ScheduleDTO();
-            BeanUtils.copyProperties(schedule, scheduleDto);
-            schedulesDto.add(scheduleDto);
+            schedulesDto.add(convertScheduleToScheduleDto(schedule));
         }
 
         return schedulesDto;
