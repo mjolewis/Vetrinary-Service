@@ -13,12 +13,10 @@ import com.udacity.jdnd.course3.critter.api.user.customer.CustomerDTO;
 import com.udacity.jdnd.course3.critter.api.user.employee.EmployeeDTO;
 import com.udacity.jdnd.course3.critter.api.user.employee.EmployeeRequestDTO;
 import com.udacity.jdnd.course3.critter.domain.user.employee.EmployeeSkill;
-import com.udacity.jdnd.course3.critter.service.user.customer.CustomerService;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.context.annotation.Bean;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.DayOfWeek;
